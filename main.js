@@ -7,7 +7,6 @@ function Queue(concurrentCount = 1) {
   this.todo = [];
   this.currentTask = {};
   this.add = (func, args) => {
-    console.log("lo");
     _this.todo.push({ func, args });
     _this.start();
   };
@@ -24,7 +23,6 @@ function Queue(concurrentCount = 1) {
     _this.idle = false;
     while (_this.runNext()) {
       _this.currentTask = _this.todo.shift();
-      console.log(_this.currentTask);
       _this.currentTask.func(..._this.currentTask.args).then(() => {
         _this.complete.push(_this.running.shift());
         _this.run();
@@ -82,39 +80,36 @@ function CipherType(target, options = { startSpeed: 200 }) {
     await this.sleep(speed * 5);
   };
 
-  this.allAtOnce = async (text, target, count, speed, useSymbols = false) => {
-    let resc = useSymbols ? this.symbols : this.letters;
-    for (let j = 0; j < 2; j++) {
-      let len = target.innerHTML.length;
-      for (let a = 0; a < len; a++) {
-        console.log(len);
-        await this.sleep(speed * 1.2);
-        let res = target.innerHTML;
-        target.innerHTML = this.removeLast(res);
-      }
-      for (let i = 0; i < count; i++) {
+  this.allAtOnce = async (text, count = 2, speed, useSymbols = false) => {
+    let resc = useSymbols ? _this.symbols : _this.letters;
+
+    let past = _this.target().innerHTML;
+
+      for (let i = 0; i < 20; i++) {
         let result = "";
-        for (let a = 0; a < text[j].length; a++) {
-          result += this.symbolGenerator(resc);
+        for (let a = 0; a < text.length; a++) {
+          result += text[a] === " " ? " " : _this.symbolGenerator(resc);
         }
-        target.innerHTML = result;
+        _this.target().innerHTML = past + result;
         await this.sleep(speed);
       }
-      target.innerHTML = text[j];
+      _this.target().innerHTML = past + text;
       await this.sleep(speed * 3);
-    }
+    
   };
 
   CipherType.prototype._write = async (text) => {
     await _this.sleep(_this.startSpeed);
-    await _this.oneByOne(text, 4, 80, true);
+    await _this.allAtOnce(text, 4, 200, true);
     return this;
   };
 
   CipherType.prototype._delete = async (len, speed = _this.speed) => {
     await _this.sleep(_this.startSpeed);
-    console.log("90");
-    //let len = target.innerHTML.length;
+    if (typeof(len) === "string") {
+      len = len === "CLEAR" ? _this.target().innerHTML.length : 0;
+    }
+    //let len = _this.target().innerHTML.length;
     for (let a = 0; a < len; a++) {
       let res = _this.target().innerHTML;
       await _this.sleep(speed * 1.2);
@@ -133,7 +128,7 @@ function CipherType(target, options = { startSpeed: 200 }) {
     return this;
   };
   CipherType.prototype.clear = (speed = _this.speed) => {
-    let len = _this.target().innerHTML.length;
+
     cipherQueue.add(CipherType.prototype._delete, [len, speed]);
     return this;
   };
@@ -141,15 +136,14 @@ function CipherType(target, options = { startSpeed: 200 }) {
 }
 
 let type = new CipherType("h1");
-// let tasks = [type.type, type.delete]
 
 type
   .type("Welcome to the future")
-  .backspace(10, 200)
+  .backspace(10, 150)
   .type("Crypto")
-  .clear(50)
+  .backspace("CLEAR", 50)
   .type("Ways to go")
-  .clear( 50)
+  .backspace("CLEAR")
   .type("One step at a time")
 //.then(res => res.delete(10, 50).then(res => res.type("CRYPTo")))
 //CryptoType.oneByOne(text, target, 4, 80, true);
