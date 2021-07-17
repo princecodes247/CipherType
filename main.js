@@ -46,21 +46,39 @@ function Queue(concurrentCount = 1) {
   };
 }
 
-function CipherType(target, options = { startSpeed: 200, breakLine: true }) {
-  const _this = this;
+function CipherType(
+  target, 
+  options = { 
+    breakLine: true,
+    cursor: false,//
+    cursorSpeed: 100,//
+    cursorChar: "|",//
+    lifeLike: false,
+    loop: false,
+    loopDelay: null,
+    html: true,//
+    nextStringDelay: 100,
+    startDelete: false,
+    startDelay: 250,
+    startSpeed: 200,
+    speed: 100,
+    deleteSpeed: 1/3,
+    useSymbols: false,
+    waitUntilVisible: false
+  }) {
+    Object.assign(this, options);
+    const _this = this;
   this.letters = "∀∃ƂOo⅂AɌFWDU∋IßP⅁XꝚ";
   this.symbols = "Ɣ%A$D#Fɻ∀∃∂⅄@W⅂&ꝚǶs∇!U∋Iß℘P⅁X∆";
   this.result = "";
-  this.startSpeed = options.startSpeed;
-  this.breakLine = true;
-  this.speed = 100;
-  this.nextStringDelay = 100;
-  this.target = () => document.querySelector(target);
+  this.deleteSpeed *= this.speed;
+  this.spacing = _this.breakLine ? "<br/>" : " "
   const cipherQueue = new Queue();
-  // let todo = [];
-  const actions = {};
-  actions.errors = [];
 
+  // WORK ON LIFELIKE
+
+  this.target = document.querySelector(target);
+  
   //WRITE CODE FOR TYPING ELEMENT HARD CODED TEXT
 
   this.sleep = async (ms) => {
@@ -74,47 +92,119 @@ function CipherType(target, options = { startSpeed: 200, breakLine: true }) {
   this.removeLast = (str) => {
     return str.slice(0, -1);
   };
-
+  this.output = (arg) => {
+    if (_this.html) {
+      if (!(typeof(arg) === 'undefined')) {
+        _this.target.innerHTML = arg
+      }
+      return _this.target.innerHTML
+    }
+    console.log("up");
+    if (!typeof(arg) === 'undefined') {
+      _this.target().innerText = arg
+    }
+    return _this.target().innerText
+  }
+  this.insert = (str, index, value) => {
+    return str.substr(0, index) + value + str.substr(index);
+  }
   this.oneByOne = async (
     texts = ["cipherType"],
-    count,
-    speed,
-    useSymbols = false
+    count = 4,
+    speed = this.speed,
+    useSymbols = this.useSymbols
   ) => {
     let resc = useSymbols ? this.symbols : this.letters;
-
     for (let j = 0; j < texts.length; j++) {
+
+      // IMPLEMENTATION FOR HTML OPTION
+      // let matches = new Array(texts[j].length).fill(0)
+      // if (_this.html) {
+      //   let openingTag = ""
+      //   let closingTag = ""
+      //   let openingRegex = /<[a-zA-Z]+(>|.*?[^?]>)/g;
+      //   let closingRegex = /((<\/)w+(>))/g;
+      //   let htmlRegex = /<.+?>/g;
+      //   let shift = 0
+      //   texts[j]=texts[j].replace(htmlRegex, (match,offset) => {
+      //     let pos = offset - shift
+      //     pos = pos > 0 ? pos : 0;
+      //     matches[pos] = match
+      //     console.log(offset, pos);
+      //     shift--
+      //     shift += match.length
+      //     console.log(matches[1]);
+      //     return " "
+      //   })
+        
+      // }
+      
+      console.log(texts[j]);
       for (let a = 0; a < texts[j].length; a++) {
         let final = texts[j][a];
-        let past = _this.target().innerHTML;
+        let past = _this.output();
+
         for (let i = 0; i < count; i++) {
           if (texts[j][a] === " ") {
             continue;
           }
           await this.sleep(speed);
-          _this.target().innerHTML = past + this.symbolGenerator(resc);
+          let cu = this.symbolGenerator(resc);
+          
+          
+          // IMPLEMENTATION FOR HTML OPTION
+          // matches.forEach(match => {
+          //   if (match !== 0) {
+          //     console.log(match);
+          //     console.log(matches.indexOf(match));
+          //     if (matches.indexOf(match) < a) {
+          //       cu = match + cu
+          //     } else {
+          //       cu =  cu + match
+          //     }
+          //   }
+          // });
+
+
+          _this.output(past + cu);
         }
-        _this.target().innerHTML = past + final;
+
+        // IMPLEMENTATION FOR HTML OPTION
+        // matches.forEach(match => {
+        //   if (match !== 0) {
+        //     console.log(match);
+        //     console.log(matches.indexOf(match));
+        //     if (matches.indexOf(match) < a) {
+        //       final = match + final
+        //     } else {
+        //       final =  final + match
+        //     }
+        //   }
+        // });
+
+
+        _this.output(past + final);
       }
-      _this.target().innerHTML += _this.breakLine ? "<br/>" : " ";
+      
+      _this.output( _this.output() + _this.spacing);
+      await this.sleep(_this.nextStringDelay);
     }
-    await this.sleep(speed * 5);
   };
 
   this.allAtOnce = async (text, count = 2, speed, useSymbols = false) => {
     let resc = useSymbols ? _this.symbols : _this.letters;
 
-    let past = _this.target().innerHTML;
+    let past = _this.target.innerHTML;
 
     for (let i = 0; i < 20; i++) {
       let result = "";
       for (let a = 0; a < text.length; a++) {
         result += text[a] === " " ? " " : _this.symbolGenerator(resc);
       }
-      _this.target().innerHTML = past + result;
+      _this.target.innerHTML = past + result;
       await this.sleep(speed);
     }
-    _this.target().innerHTML = past + text;
+    _this.target.innerHTML = past + text;
     await this.sleep(speed * 3);
   };
 
@@ -122,25 +212,26 @@ function CipherType(target, options = { startSpeed: 200, breakLine: true }) {
     if (typeof texts === "string") {
       texts = [texts];
     }
-    await _this.sleep(_this.startSpeed);
+    
     await _this.oneByOne(texts, count, speed, useSymbols);
     return this;
   };
 
-  CipherType.prototype._delete = async (len, speed = _this.speed) => {
+  CipherType.prototype._delete = async (len, speed = _this.deleteSpeed) => {
     await _this.sleep(_this.startSpeed);
     console.log(typeof len);
     if (typeof len === "string") {
-      len = len === "CLEAR" ? _this.target().innerHTML.length : 0;
+      len = len === "CLEAR" ? _this.target.innerHTML.length : 0;
     }
     if (typeof len === "undefined") {
-      len = _this.target().innerHTML.length;
+      len = _this.target.innerHTML.length;
     }
-    //let len = _this.target().innerHTML.length;
+    //let len = _this.target.innerHTML.length;
     for (let a = 0; a < len; a++) {
-      let res = _this.target().innerHTML;
-      await _this.sleep(speed * 1.2);
-      _this.target().innerHTML = this.removeLast(res);
+      let res = _this.target.innerHTML;
+      await _this.sleep(_this.deleteSpeed);
+      console.log(a, len);
+      _this.target.innerHTML = this.removeLast(res);
     }
 
     return this;
@@ -165,7 +256,7 @@ function CipherType(target, options = { startSpeed: 200, breakLine: true }) {
     return this;
   };
   CipherType.prototype._clear = async (speed = _this.speed) => {
-      _this.target().innerHTML = "";
+      _this.target.innerHTML = "";
     return this;
   };
   CipherType.prototype.pause = (ms) => {
@@ -177,7 +268,7 @@ function CipherType(target, options = { startSpeed: 200, breakLine: true }) {
   };
   CipherType.prototype.break = () => {
     async function _() {
-      _this.target().innerHTML = _this.target().innerHTML + "<br />";
+      _this.target.innerHTML = _this.target.innerHTML + "<br />";
     }
     cipherQueue.add(_, "");
     return this;
@@ -200,14 +291,11 @@ function CipherType(target, options = { startSpeed: 200, breakLine: true }) {
   return this;
 }
 
-let type = new CipherType("h1");
+let sophia = new CipherType("p");
 
-type
-  .type(["HI Ebi", "Yo!!!"], 3, 40)
+sophia
+  .type("asw <sup> ht </sup> and....")
   .backspace()
-  .type("What's up?")
-  .type("What's up?");
-
 let btn = document.querySelector("button");
 btn.addEventListener("click", function () {
   type.reset();
