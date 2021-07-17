@@ -1,14 +1,12 @@
 # CipherType
-## Welcome to GitHub Pages
+## Welcome to CipherType
 
-You can use the [editor on GitHub](https://github.com/princecodes247/CipherType/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Ever wanted to give your website or web app that deciphering ciphers feel? Well with CipherType, that's all super easy
+### Installation
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
+```
+scrip
+```
 ```markdown
 Syntax highlighted code block
 
