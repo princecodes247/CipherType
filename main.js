@@ -13,7 +13,11 @@ function Queue(concurrentCount = 1) {
   };
   this.rerun = () => {
     _this.stop = true;
-    _this.todo = [{func: CipherType.prototype._clear, args: ""}, ..._this.complete, ..._this.todo];
+    _this.todo = [
+      { func: CipherType.prototype._clear, args: "" },
+      ..._this.complete,
+      ..._this.todo,
+    ];
     _this.start();
   };
   this.execute = async () => {
@@ -27,14 +31,14 @@ function Queue(concurrentCount = 1) {
   };
   this.run = function () {
     _this.idle = false;
-      while (_this.runNext()) {
-        _this.currentTask = _this.todo.shift();
-        _this.currentTask.func(..._this.currentTask.args).then(() => {
-          _this.complete.push(_this.running.shift());
-          _this.run();
-        });
-        _this.running.push(_this.currentTask);
-      }
+    while (_this.runNext()) {
+      _this.currentTask = _this.todo.shift();
+      _this.currentTask.func(..._this.currentTask.args).then(() => {
+        _this.complete.push(_this.running.shift());
+        _this.run();
+      });
+      _this.running.push(_this.currentTask);
+    }
 
     // }
   };
@@ -47,38 +51,57 @@ function Queue(concurrentCount = 1) {
 }
 
 function CipherType(
-  target, 
-  options = { 
+  target,
+  options = {
     breakLine: true,
-    cursor: false,//
-    cursorSpeed: 100,//
-    cursorChar: "|",//
+    cursor: false, //
+    cursorSpeed: 100, //
+    cursorChar: "|", //
     lifeLike: false,
     loop: false,
     loopDelay: null,
-    html: true,//
+    html: true, //
     nextStringDelay: 100,
     startDelete: false,
     startDelay: 250,
-    startSpeed: 200,
     speed: 100,
-    deleteSpeed: 1/3,
+    deleteSpeed: 1 / 3,
     useSymbols: false,
-    waitUntilVisible: false
-  }) {
-    Object.assign(this, options);
-    const _this = this;
+    waitUntilVisible: false,
+  }
+) {
+  //Object.assign(this, options);
+  const _this = this;
+  
+  this.breakLine = options.breakLine || true;
+  this.cursor = options.cursor || false; //
+  this.cursorSpeed = options.cursorSpeed || 100; //
+  this.cursorChar = options.cursorChar || "|"; //
+  this.lifeLike = options.lifeLike || false;
+  this.loop = options.loop || false;
+  this.loopDelay = options.loopDelay || null;
+  this.html = options.html || true; //
+  this.nextStringDelay = options.nextStringDelay || 100;
+  this.startDelete = options.startDelete || false;
+  this.startDelay = options.startDelay || 250;
+  this.speed = options.speed || 100;
+  this.deleteSpeed = options.deleteSpeed || 1 / 3;
+  this.useSymbols = options.useSymbols || false;
+  this.waitUntilVisible = options.waitUntilVisible || false;
   this.letters = "∀∃ƂOo⅂AɌFWDU∋IßP⅁XꝚ";
   this.symbols = "Ɣ%A$D#Fɻ∀∃∂⅄@W⅂&ꝚǶs∇!U∋Iß℘P⅁X∆";
   this.result = "";
   this.deleteSpeed *= this.speed;
-  this.spacing = _this.breakLine ? "<br/>" : " "
+  this.spacing = _this.breakLine ? "<br/>" : " ";
   const cipherQueue = new Queue();
 
   // WORK ON LIFELIKE
 
   this.target = document.querySelector(target);
-  
+  this.target.classList.add("target")
+  if (this.cursor) {
+    this.target.classList.add("with-cursor")
+  }
   //WRITE CODE FOR TYPING ELEMENT HARD CODED TEXT
 
   this.sleep = async (ms) => {
@@ -94,29 +117,29 @@ function CipherType(
   };
   this.output = (arg) => {
     if (_this.html) {
-      if (!(typeof(arg) === 'undefined')) {
-        _this.target.innerHTML = arg
+      if (!(typeof arg === "undefined")) {
+        _this.target.innerHTML = arg;
       }
-      return _this.target.innerHTML
+      return _this.target.innerHTML;
     }
     console.log("up");
-    if (!typeof(arg) === 'undefined') {
-      _this.target().innerText = arg
+    if (!typeof arg === "undefined") {
+      _this.target().innerText = arg;
     }
-    return _this.target().innerText
-  }
+    return _this.target.innerText;
+  };
   this.insert = (str, index, value) => {
     return str.substr(0, index) + value + str.substr(index);
-  }
+  };
   this.oneByOne = async (
     texts = ["cipherType"],
-    count = 4,
     speed = this.speed,
+    count = 4,
     useSymbols = this.useSymbols
   ) => {
+    this.target.classList.add("typing")
     let resc = useSymbols ? this.symbols : this.letters;
     for (let j = 0; j < texts.length; j++) {
-
       // IMPLEMENTATION FOR HTML OPTION
       // let matches = new Array(texts[j].length).fill(0)
       // if (_this.html) {
@@ -136,9 +159,9 @@ function CipherType(
       //     console.log(matches[1]);
       //     return " "
       //   })
-        
+
       // }
-      
+
       console.log(texts[j]);
       for (let a = 0; a < texts[j].length; a++) {
         let final = texts[j][a];
@@ -150,8 +173,7 @@ function CipherType(
           }
           await this.sleep(speed);
           let cu = this.symbolGenerator(resc);
-          
-          
+
           // IMPLEMENTATION FOR HTML OPTION
           // matches.forEach(match => {
           //   if (match !== 0) {
@@ -164,7 +186,6 @@ function CipherType(
           //     }
           //   }
           // });
-
 
           _this.output(past + cu);
         }
@@ -182,17 +203,16 @@ function CipherType(
         //   }
         // });
 
-
         _this.output(past + final);
       }
-      
-      _this.output( _this.output() + _this.spacing);
+
       await this.sleep(_this.nextStringDelay);
     }
+    this.target.classList.remove("typing")
   };
 
-  this.allAtOnce = async (text, count = 2, speed, useSymbols = false) => {
-    let resc = useSymbols ? _this.symbols : _this.letters;
+  this.allAtOnce = async (text, speed, count = 2, useSymbols = false) => {
+  let resc = useSymbols ? _this.symbols : _this.letters;
 
     let past = _this.target.innerHTML;
 
@@ -208,17 +228,20 @@ function CipherType(
     await this.sleep(speed * 3);
   };
 
-  CipherType.prototype._write = async (texts, count, speed, useSymbols) => {
+  CipherType.prototype._write = async (texts, speed, count, useSymbols) => {
     if (typeof texts === "string") {
       texts = [texts];
     }
-    
-    await _this.oneByOne(texts, count, speed, useSymbols);
+    if (_this.startDelete) {
+      
+      await CipherType.prototype._delete()
+    }
+    await _this.oneByOne(texts, speed, count, useSymbols);
     return this;
   };
 
   CipherType.prototype._delete = async (len, speed = _this.deleteSpeed) => {
-    await _this.sleep(_this.startSpeed);
+    await _this.sleep(_this.startDelay);
     console.log(typeof len);
     if (typeof len === "string") {
       len = len === "CLEAR" ? _this.target.innerHTML.length : 0;
@@ -227,11 +250,12 @@ function CipherType(
       len = _this.target.innerHTML.length;
     }
     //let len = _this.target.innerHTML.length;
+    // ADD INNER_HTML FOR HTML IMPLEMENTATION
     for (let a = 0; a < len; a++) {
-      let res = _this.target.innerHTML;
+      let res = _this.target.textContent;
       await _this.sleep(_this.deleteSpeed);
       console.log(a, len);
-      _this.target.innerHTML = this.removeLast(res);
+      _this.target.textContent = this.removeLast(res);
     }
 
     return this;
@@ -239,14 +263,14 @@ function CipherType(
 
   CipherType.prototype.type = (
     text,
-    count = 4,
     speed = 80,
+    count = 4,
     useSymbols = false
   ) => {
     cipherQueue.add(CipherType.prototype._write, [
       text,
-      count,
       speed,
+      count,
       useSymbols,
     ]);
     return this;
@@ -256,7 +280,7 @@ function CipherType(
     return this;
   };
   CipherType.prototype._clear = async (speed = _this.speed) => {
-      _this.target.innerHTML = "";
+    _this.target.innerHTML = "";
     return this;
   };
   CipherType.prototype.pause = (ms) => {
@@ -274,7 +298,6 @@ function CipherType(
     return this;
   };
   CipherType.prototype.empty = () => {
-
     cipherQueue.add(CipherType.prototype._clear, "");
     return this;
   };
@@ -291,11 +314,10 @@ function CipherType(
   return this;
 }
 
-let sophia = new CipherType("p");
+let sophia = new CipherType("p", { speed: 10, startDelete: true });
 
-sophia
-  .type("asw <sup> ht </sup> and....")
-  .backspace()
+sophia.type("asw <sup> ht </sup> and....", 20)
+
 let btn = document.querySelector("button");
 btn.addEventListener("click", function () {
   type.reset();
