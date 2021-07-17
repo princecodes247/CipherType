@@ -1,0 +1,22 @@
+
+.target {
+    position: relative;
+    margin: 10px;
+    --target: 0;
+}
+.target.typing {
+    --target: 1;
+}
+.with-cursor::after {
+    content: "|";
+    position: absolute;
+    right: -5px;
+    animation: cipherTypeBlink 0.6s ease-in-out infinite alternate;
+    
+}
+
+@keyframes cipherTypeBlink {
+    to {
+        opacity: var(--target);
+    }
+}

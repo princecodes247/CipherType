@@ -52,23 +52,7 @@ function Queue(concurrentCount = 1) {
 
 function CipherType(
   target,
-  options = {
-    breakLine: true,
-    cursor: false, //
-    cursorSpeed: 100, //
-    cursorChar: "|", //
-    lifeLike: false,
-    loop: false,
-    loopDelay: null,
-    html: true, //
-    nextStringDelay: 100,
-    startDelete: false,
-    startDelay: 250,
-    speed: 100,
-    deleteSpeed: 1 / 3,
-    useSymbols: false,
-    waitUntilVisible: false,
-  }
+  options = {}
 ) {
   //Object.assign(this, options);
   const _this = this;
@@ -81,11 +65,11 @@ function CipherType(
   this.loop = options.loop || false;
   this.loopDelay = options.loopDelay || null;
   this.html = options.html || true; //
-  this.nextStringDelay = options.nextStringDelay || 100;
+  this.nextStringDelay = options.nextStringDelay || 200;
   this.startDelete = options.startDelete || false;
   this.startDelay = options.startDelay || 250;
   this.speed = options.speed || 100;
-  this.deleteSpeed = options.deleteSpeed || 1 / 3;
+  this.deleteSpeed = options.deleteSpeed || 1 / 3 * this.speed;
   this.useSymbols = options.useSymbols || false;
   this.waitUntilVisible = options.waitUntilVisible || false;
   this.letters = "∀∃ƂOo⅂AɌFWDU∋IßP⅁XꝚ";
@@ -101,6 +85,9 @@ function CipherType(
   this.target.classList.add("target")
   if (this.cursor) {
     this.target.classList.add("with-cursor")
+  }
+  if (_this.startDelete) {
+    this.target.innerHTML = ""
   }
   //WRITE CODE FOR TYPING ELEMENT HARD CODED TEXT
 
@@ -140,6 +127,11 @@ function CipherType(
     this.target.classList.add("typing")
     let resc = useSymbols ? this.symbols : this.letters;
     for (let j = 0; j < texts.length; j++) {
+      if (j > 0) {
+        _this.output(_this.output() + _this.spacing);
+        await _this.sleep(_this.nextStringDelay);
+      
+      }
       // IMPLEMENTATION FOR HTML OPTION
       // let matches = new Array(texts[j].length).fill(0)
       // if (_this.html) {
@@ -205,10 +197,8 @@ function CipherType(
 
         _this.output(past + final);
       }
-
-      await this.sleep(_this.nextStringDelay);
     }
-    this.target.classList.remove("typing")
+    _this.target.classList.remove("typing")
   };
 
   this.allAtOnce = async (text, speed, count = 2, useSymbols = false) => {
@@ -231,10 +221,6 @@ function CipherType(
   CipherType.prototype._write = async (texts, speed, count, useSymbols) => {
     if (typeof texts === "string") {
       texts = [texts];
-    }
-    if (_this.startDelete) {
-      
-      await CipherType.prototype._delete()
     }
     await _this.oneByOne(texts, speed, count, useSymbols);
     return this;
@@ -260,7 +246,10 @@ function CipherType(
 
     return this;
   };
-
+  CipherType.prototype._clear = async (speed = _this.speed) => {
+    _this.target.innerHTML = "";
+    return this;
+  };
   CipherType.prototype.type = (
     text,
     speed = 80,
@@ -273,14 +262,10 @@ function CipherType(
       count,
       useSymbols,
     ]);
-    return this;
+    return CipherType.prototype;
   };
   CipherType.prototype.backspace = (len, speed = _this.speed) => {
     cipherQueue.add(CipherType.prototype._delete, [len, speed]);
-    return this;
-  };
-  CipherType.prototype._clear = async (speed = _this.speed) => {
-    _this.target.innerHTML = "";
     return this;
   };
   CipherType.prototype.pause = (ms) => {
