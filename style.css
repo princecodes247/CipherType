@@ -1,4 +1,4 @@
-* {
+*, *::after, *::before {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -8,8 +8,63 @@ body {
     background-color: #222;
     font-family:  "Baron Neue";
     display: flex;
-    justify-content: center;
-    height: 100vh;
+    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
     color: #fff;
+    
+}
+
+.navbar {
+    display: flex;
+   align-items: center;
+   justify-content: space-between;
+   width: 90vw;
+   height: 8vh;
+   padding: 0 5%;
+}
+
+.navbar__links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+.code {
+    font-family: 'Courier New', Courier, monospace;
+    padding: 20px;
+    background-color: #333333;
+    border-radius: 10px;
+    width: 80vw;
+    margin: 10px 0;
+}
+
+.intro__cont {
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.intro__cont h1 {
+    font-size: 2.4em;
+    text-align: center;
+}
+
+section {
+    width: 90vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.part {
+    margin: 20px 0;
+}
+
+.example {
+    border-radius: 10px;
+    min-height: 50px;
+    width: 80vw;
+    background-color: #333333;
 }

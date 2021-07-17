@@ -9,8 +9,149 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <p>Welcome to CipherType</p>
-    
+    <header class="navbar">
+        <div class="logo">CipherType</div>
+        <ul class="navbar__links">
+            <li>Docs</li>
+            <li>Stuff</li>
+            <li>Stuff</li>
+        </ul>
+    </header>
+    <main>
+        <section class="intro">
+            <div class="intro__cont">
+                <h1 id="intro__text">Welcome to CipherType</h1>
+            </div>
+            <div class="code">
+                let instance = new CipherType("p", { mode: 1, speed: 10, startDelete: true });
+                <br>
+                instance
+                <br>
+                .type("Welcome to the future")
+                <br>
+                .backspace(10)
+                <br>
+                .type("cipherType")
+            </div>
+            <div class="features">
+                Size
+                Seo friendly
+            </div>
+        </section>
+        <section class="about">
+            Stuff
+        </section>
+        <section class="how">
+            <h2>How to use</h2>
+            <div class="part">
+                <h3>Simple Typing</h3>
+                <div class="example"></div>
+                <div class="code">
+                    let instance = new CipherType("p");
+                    <br>
+                    instance
+                    .type("Simple text")
+                </div>
+            </div>
+            <div class="part">
+                <h3>Typing multiple lines at a time</h3>
+                <h4>Method 1</h4>
+                <div class="example"></div>
+                <div class="code">
+                    let instance = new CipherType("p");
+                    <br>
+                    instance
+                    .type(["Simple text", "Kept simple"])
+                </div>
+                <h4>Method 2</h4>
+                
+                <div class="code">
+                    let instance = new CipherType("p");
+                    <br>
+                    instance
+                    <br>
+                    .type("Simple text")
+                    <br>
+                    .type("Kept simple")
+                </div>
+            </div>
+            <div class="part">
+                <h3>Changing text</h3>
+                <div class="example"></div>
+                <div class="code">
+                    let instance = new CipherType("p");
+                    <br>
+                    instance
+                    <br>
+                    .type("Changing text")
+                    <br>
+                    .delete(4)
+                    <br>
+                    .type("the world...")
+                </div>
+            </div>
+            <div class="part">
+                <h3>Using cursor</h3>
+                <div class="example"></div>
+                <div class="code">
+                    let instance = new CipherType("p");
+                    <br>
+                    instance
+                    <br>
+                    .type("Changing text")
+                    <br>
+                    .delete(4)
+                    <br>
+                    .type("the world...")
+                </div>
+            </div>
+            <div class="part">
+                <h3>Typing text straight</h3>
+                <div class="example"></div>
+                <div class="code">
+                    let instance = new CipherType("p");
+                    <br>
+                    instance
+                    <br>
+                    .type("Changing text")
+                    <br>
+                    .delete(4)
+                    <br>
+                    .type("the world...")
+                </div>
+            </div>
+        </section>
+        <section class="options">
+            <h2>Options</h2>
+            <table>
+                <thead>
+                <td>
+                    Option
+                </td>
+                <td>
+                    description
+                </td>
+            </thead>
+                <tbody>
+                    <tr>
+                        <td>speed</td>
+                        <td>This is the amount of time it takes between each character change.
+                            Default value is 100.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>speed</td>
+                        <td>This is the amount of time it takes between each character change.
+                            Default value is 100.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer>
+        © Prince Codes
+    </footer>
     <script src="cipherType.js"></script>
     <script src="script.js"></script>
 </body>

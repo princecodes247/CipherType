@@ -1,6 +1,5 @@
-let sophia = new CipherType("p", { speed: 10, startDelete: true });
 
-sophia
+let intro = new CipherType("#intro__text", {startDelete: true})
 .type("Welcome to the future")
 .backspace(10)
 .type("cipherType")

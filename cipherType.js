@@ -5,10 +5,12 @@ function Queue(concurrentCount = 1) {
   this.idle = true;
   this.threads = 1;
   this.todo = [];
+  this.tasks = [];
   this.currentTask = {};
   this.stop = false;
   this.add = (func, args) => {
     _this.todo.push({ func, args });
+    _this.tasks.push({ func, args });
     _this.start();
   };
   this.rerun = () => {
@@ -31,6 +33,7 @@ function Queue(concurrentCount = 1) {
   };
   this.run = function () {
     _this.idle = false;
+
     while (_this.runNext()) {
       _this.currentTask = _this.todo.shift();
       _this.currentTask.func(..._this.currentTask.args).then(() => {
@@ -42,21 +45,19 @@ function Queue(concurrentCount = 1) {
 
     // }
   };
-  this.start = () => {
+  this.start = (times = 4) => {
     if (_this.idle) {
       _this.stop = false;
-      _this.run();
+      
+        _this.run();
     }
   };
 }
 
-function CipherType(
-  target,
-  options = {}
-) {
+function CipherType(target, options = {}) {
   //Object.assign(this, options);
   const _this = this;
-  
+  this.mode = options.mode || 1;
   this.breakLine = options.breakLine || true;
   this.cursor = options.cursor || false; //
   this.cursorSpeed = options.cursorSpeed || 100; //
@@ -69,25 +70,24 @@ function CipherType(
   this.startDelete = options.startDelete || false;
   this.startDelay = options.startDelay || 250;
   this.speed = options.speed || 100;
-  this.deleteSpeed = options.deleteSpeed || 1 / 3 * this.speed;
+  this.deleteSpeed = options.deleteSpeed || (1 / 3) * this.speed;
   this.useSymbols = options.useSymbols || false;
   this.waitUntilVisible = options.waitUntilVisible || false;
-  this.letters = "∀∃ƂOo⅂AɌFWDU∋IßP⅁XꝚ";
-  this.symbols = "Ɣ%A$D#Fɻ∀∃∂⅄@W⅂&ꝚǶs∇!U∋Iß℘P⅁X∆";
+  this.letters = "∀∃ƂOo⅂AɌFWDɺU∋IßP⅁XꝚ";
+  this.symbols = "Ɣ%A$D#Fɻ∀∃∂⅄ʆ@W⅂&ꝚǶs∇!U∋Iß℘P⅁X∆";
   this.result = "";
-  this.deleteSpeed *= this.speed;
   this.spacing = _this.breakLine ? "<br/>" : " ";
   const cipherQueue = new Queue();
 
   // WORK ON LIFELIKE
 
   this.target = document.querySelector(target);
-  this.target.classList.add("target")
+  this.target.classList.add("target");
   if (this.cursor) {
-    this.target.classList.add("with-cursor")
+    this.target.classList.add("with-cursor");
   }
   if (_this.startDelete) {
-    this.target.innerHTML = ""
+    this.target.innerHTML = "";
   }
   //WRITE CODE FOR TYPING ELEMENT HARD CODED TEXT
 
@@ -124,13 +124,12 @@ function CipherType(
     count = 4,
     useSymbols = this.useSymbols
   ) => {
-    this.target.classList.add("typing")
+    this.target.classList.add("typing");
     let resc = useSymbols ? this.symbols : this.letters;
     for (let j = 0; j < texts.length; j++) {
       if (j > 0) {
         _this.output(_this.output() + _this.spacing);
         await _this.sleep(_this.nextStringDelay);
-      
       }
       // IMPLEMENTATION FOR HTML OPTION
       // let matches = new Array(texts[j].length).fill(0)
@@ -198,23 +197,24 @@ function CipherType(
         _this.output(past + final);
       }
     }
-    _this.target.classList.remove("typing")
+    _this.target.classList.remove("typing");
   };
 
-  this.allAtOnce = async (text, speed, count = 2, useSymbols = false) => {
-  let resc = useSymbols ? _this.symbols : _this.letters;
+  this.allAtOnce = async (texts = ["cipherType"], speed, count = 2, useSymbols = false) => {
+    let resc = useSymbols ? _this.symbols : _this.letters;
 
     let past = _this.target.innerHTML;
-
+    for (let j = 0; j < texts.length; j++) {
     for (let i = 0; i < 20; i++) {
       let result = "";
-      for (let a = 0; a < text.length; a++) {
-        result += text[a] === " " ? " " : _this.symbolGenerator(resc);
+      for (let a = 0; a < texts[j].length; a++) {
+        result += texts[j][a] === " " ? " " : _this.symbolGenerator(resc);
       }
       _this.target.innerHTML = past + result;
       await this.sleep(speed);
     }
-    _this.target.innerHTML = past + text;
+    _this.target.innerHTML = past + texts[j];
+  }
     await this.sleep(speed * 3);
   };
 
@@ -222,7 +222,18 @@ function CipherType(
     if (typeof texts === "string") {
       texts = [texts];
     }
-    await _this.oneByOne(texts, speed, count, useSymbols);
+    switch (_this.mode) {
+      case 1:
+        await _this.oneByOne(texts, speed, count, useSymbols);
+        break;
+      case 2:
+        await _this.allAtOnce(texts, speed, count, useSymbols);
+        break;
+      default:
+        //await _this.oneByOne(texts, speed, count, useSymbols);
+        break;
+    }
+    
     return this;
   };
 
@@ -295,6 +306,11 @@ function CipherType(
     cipherQueue.rerun();
     return this;
   };
+  CipherType.prototype.run = () => {
+    cipherQueue.start();
+    return this;
+  };
+
   //ADD OPTIONS METHOD
   return this;
 }
