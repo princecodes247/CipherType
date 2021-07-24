@@ -1,5 +1,5 @@
 function Queue(concurrentCount = 1) {
-  _this = this;
+  let _this = this;
   this.running = [];
   this.complete = [];
   this.idle = true;
@@ -11,7 +11,7 @@ function Queue(concurrentCount = 1) {
   this.add = (func, args) => {
     _this.todo.push({ func, args });
     _this.tasks.push({ func, args });
-    _this.start();
+    
   };
   this.rerun = () => {
     _this.stop = true;
@@ -36,6 +36,7 @@ function Queue(concurrentCount = 1) {
 
     while (_this.runNext()) {
       _this.currentTask = _this.todo.shift();
+      console.log(_this.currentTask);
       _this.currentTask.func(..._this.currentTask.args).then(() => {
         _this.complete.push(_this.running.shift());
         _this.run();
@@ -49,17 +50,23 @@ function Queue(concurrentCount = 1) {
     if (_this.idle) {
       _this.stop = false;
       
-        _this.run();
     }
+    _this.run();
   };
+}
+
+function observer() {
+  
+  return this;
 }
 
 function CipherType(target, options = {}) {
   //Object.assign(this, options);
-  const _this = this;
+  let _this = this;
   this.mode = options.mode || 1;
+  this.switchCount = options.switchCount || 3;
   this.breakLine = options.breakLine || true;
-  this.cursor = options.cursor || false; //
+  this.cursor = options.withCursor || false; //
   this.cursorSpeed = options.cursorSpeed || 100; //
   this.cursorChar = options.cursorChar || "|"; //
   this.lifeLike = options.lifeLike || false;
@@ -67,17 +74,16 @@ function CipherType(target, options = {}) {
   this.loopDelay = options.loopDelay || null;
   this.html = options.html || true; //
   this.nextStringDelay = options.nextStringDelay || 200;
-  this.startDelete = options.startDelete || false;
-  this.startDelay = options.startDelay || 250;
+  this.startDelete = options.startDelete || false;350;
   this.speed = options.speed || 100;
-  this.deleteSpeed = options.deleteSpeed || (1 / 3) * this.speed;
+  this.deleteSpeed = options.deleteSpeed || (1/3) * this.speed;
   this.useSymbols = options.useSymbols || false;
   this.waitUntilVisible = options.waitUntilVisible || false;
   this.letters = "∀∃ƂOo⅂AɌFWDɺU∋IßP⅁XꝚ";
   this.symbols = "Ɣ%A$D#Fɻ∀∃∂⅄ʆ@W⅂&ꝚǶs∇!U∋Iß℘P⅁X∆";
   this.result = "";
   this.spacing = _this.breakLine ? "<br/>" : " ";
-  const cipherQueue = new Queue();
+  this.cipherQueue = new Queue();
 
   // WORK ON LIFELIKE
 
@@ -121,7 +127,7 @@ function CipherType(target, options = {}) {
   this.oneByOne = async (
     texts = ["cipherType"],
     speed = this.speed,
-    count = 4,
+    count = this.switchCount,
     useSymbols = this.useSymbols
   ) => {
     this.target.classList.add("typing");
@@ -237,7 +243,7 @@ function CipherType(target, options = {}) {
     return this;
   };
 
-  CipherType.prototype._delete = async (len, speed = _this.deleteSpeed) => {
+  CipherType.prototype._remove = async (len, speed = _this.deleteSpeed) => {
     await _this.sleep(_this.startDelay);
     console.log(typeof len);
     if (typeof len === "string") {
@@ -252,7 +258,7 @@ function CipherType(target, options = {}) {
       let res = _this.target.textContent;
       await _this.sleep(_this.deleteSpeed);
       console.log(a, len);
-      _this.target.textContent = this.removeLast(res);
+      _this.target.textContent = res.slice(0, -1);
     }
 
     return this;
@@ -263,11 +269,11 @@ function CipherType(target, options = {}) {
   };
   CipherType.prototype.type = (
     text,
-    speed = 80,
-    count = 4,
+    speed = this.speed,
+    count = this.switchCount,
     useSymbols = false
   ) => {
-    cipherQueue.add(CipherType.prototype._write, [
+    _this.cipherQueue.add(CipherType.prototype._write, [
       text,
       speed,
       count,
@@ -275,39 +281,39 @@ function CipherType(target, options = {}) {
     ]);
     return CipherType.prototype;
   };
-  CipherType.prototype.backspace = (len, speed = _this.speed) => {
-    cipherQueue.add(CipherType.prototype._delete, [len, speed]);
-    return this;
+  CipherType.prototype.delete = (len, speed = _this.speed) => {
+    _this.cipherQueue.add(CipherType.prototype._remove, [len, speed]);
+    return CipherType.prototype;
   };
   CipherType.prototype.pause = (ms) => {
     async function _(delay) {
       await this.sleep(delay);
     }
-    cipherQueue.add(_, ms);
+    _this.cipherQueue.add(_, ms);
     return this;
   };
   CipherType.prototype.break = () => {
     async function _() {
       _this.target.innerHTML = _this.target.innerHTML + "<br />";
     }
-    cipherQueue.add(_, "");
+    _this.cipherQueue.add(_, "");
     return this;
   };
   CipherType.prototype.empty = () => {
-    cipherQueue.add(CipherType.prototype._clear, "");
+    _this.cipherQueue.add(CipherType.prototype._clear, "");
     return this;
   };
   CipherType.prototype.loop = () => {
-    cipherQueue.add(CipherType.prototype._delete, []);
-    cipherQueue.rerun();
+    _this.cipherQueue.add(CipherType.prototype._delete, []);
+    _this.cipherQueue.rerun();
     return this;
   };
   CipherType.prototype.reset = () => {
-    cipherQueue.rerun();
+    _this.cipherQueue.rerun();
     return this;
   };
   CipherType.prototype.run = () => {
-    cipherQueue.start();
+    _this.cipherQueue.start();
     return this;
   };
 
