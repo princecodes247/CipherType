@@ -23,7 +23,7 @@
                 <h1 id="intro__text">Welcome to CipherType</h1>
             </div>
             <div class="code">
-                let instance = new CipherType("p", { mode: 1, speed: 10, startDelete: true });
+                let instance = new CipherType("#target", { mode: 1, speed: 10, startDelete: true });
                 <br>
                 instance
                 <br>
@@ -45,20 +45,21 @@
             <h2>How to use</h2>
             <div class="part">
                 <h3>Simple Typing</h3>
-                <div class="example"></div>
+                <div class="example" id="simple_typing"><p></p></div>
                 <div class="code">
-                    let instance = new CipherType("p");
+                    let instance = new CipherType("#target");
                     <br>
-                    instance
+                    <br>
+                    instance <br>
                     .type("Simple text")
                 </div>
             </div>
             <div class="part">
                 <h3>Typing multiple lines at a time</h3>
                 <h4>Method 1</h4>
-                <div class="example"></div>
+                <div class="example" id="multiple_lines"> <p></p></div>
                 <div class="code">
-                    let instance = new CipherType("p");
+                    let instance = new CipherType("#target");
                     <br>
                     instance
                     .type(["Simple text", "Kept simple"])
@@ -66,7 +67,7 @@
                 <h4>Method 2</h4>
                 
                 <div class="code">
-                    let instance = new CipherType("p");
+                    let instance = new CipherType("#target");
                     <br>
                     instance
                     <br>
@@ -76,48 +77,55 @@
                 </div>
             </div>
             <div class="part">
-                <h3>Changing text</h3>
-                <div class="example"></div>
+                <h3>Deleting text</h3>
+                <div class="example" id="deleting_text"><p></p></div>
                 <div class="code">
-                    let instance = new CipherType("p");
+                    let instance = new CipherType("#target");
                     <br>
                     instance
                     <br>
                     .type("Changing text")
                     <br>
+                    .delete()
+                    <br>
+                    .type("No...")
+                    <br>
+                    .delete()
+                    <br>
+                    .type("Delete test")
+                    <br>
                     .delete(4)
                     <br>
-                    .type("the world...")
+                    .type("text!")
                 </div>
             </div>
             <div class="part">
                 <h3>Using cursor</h3>
-                <div class="example"></div>
+                <div class="example" id="with_cursor">
+                    <p></p>
+                </div>
                 <div class="code">
-                    let instance = new CipherType("p");
+                    let instance = new CipherType("#target", {withCursor: true});
                     <br>
                     instance
                     <br>
-                    .type("Changing text")
-                    <br>
-                    .delete(4)
-                    <br>
-                    .type("the world...")
+                    .type("With cursor")
+                    
                 </div>
             </div>
             <div class="part">
                 <h3>Typing text straight</h3>
-                <div class="example"></div>
+                <div class="example" id="straight_text">
+                    <p></p>
+                </div>
                 <div class="code">
-                    let instance = new CipherType("p");
+                    let instance = new CipherType("#target", {switchCount: 1});
+                    <br>
                     <br>
                     instance
                     <br>
-                    .type("Changing text")
-                    <br>
-                    .delete(4)
-                    <br>
-                    .type("the world...")
+                    .type("Straight to the point...", 100)
+                    .run()
                 </div>
             </div>
         </section>

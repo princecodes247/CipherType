@@ -63,8 +63,14 @@ section {
 }
 
 .example {
+    padding: 20px 10px;
+    display: flex;
+    align-items: center;
     border-radius: 10px;
     min-height: 50px;
     width: 80vw;
     background-color: #333333;
+}
+
+.example p {
 }

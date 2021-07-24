@@ -1,7 +1,7 @@
 
 .target {
     position: relative;
-    margin: 10px;
+    /* margin: 10px; */
     --target: 0;
 }
 .target.typing {
