@@ -7,14 +7,22 @@ function Queue(concurrentCount = 1) {
   this.todo = [];
   this.tasks = [];
   this.currentTask = {};
-  this.stop = false;
+  this.test = 3
+  this.interrupt = true;
+  this.queueEnd = () => {
+    this.interrupt = true;
+    if (this.test > 1) {
+      _this.start()
+      this.test--;
+    }
+  };
+  this.queueStart = () => {
+    this.interrupt = false;
+  };
   this.add = (func, args) => {
-    _this.todo.push({ func, args });
     _this.tasks.push({ func, args });
-    
   };
   this.rerun = () => {
-    _this.stop = true;
     _this.todo = [
       { func: CipherType.prototype._clear, args: "" },
       ..._this.complete,
@@ -29,34 +37,35 @@ function Queue(concurrentCount = 1) {
     return 0;
   };
   this.runNext = function () {
-    return _this.running.length < _this.threads && _this.todo.length > 0;
+    return (
+      _this.running.length < _this.threads &&
+      _this.todo.length > 0 &&
+      !_this.interrupt
+    );
   };
   this.run = function () {
     _this.idle = false;
 
     while (_this.runNext()) {
       _this.currentTask = _this.todo.shift();
-      console.log(_this.currentTask);
       _this.currentTask.func(..._this.currentTask.args).then(() => {
         _this.complete.push(_this.running.shift());
         _this.run();
-      });
+      }).catch(err => console.log(err))
       _this.running.push(_this.currentTask);
     }
-
+    
     // }
   };
-  this.start = (times = 4) => {
-    if (_this.idle) {
-      _this.stop = false;
-      
-    }
+  this.start = (times = 10, counter = 0) => {
+    _this.queueStart()
+    _this.todo = [..._this.tasks];
+    _this.todo.push({ func: _this.queueEnd, args: ""})
     _this.run();
   };
 }
 
 function observer() {
-  
   return this;
 }
 
@@ -74,9 +83,10 @@ function CipherType(target, options = {}) {
   this.loopDelay = options.loopDelay || null;
   this.html = options.html || true; //
   this.nextStringDelay = options.nextStringDelay || 200;
-  this.startDelete = options.startDelete || false;350;
+  this.startDelete = options.startDelete || false;
+  350;
   this.speed = options.speed || 100;
-  this.deleteSpeed = options.deleteSpeed || (1/3) * this.speed;
+  this.deleteSpeed = options.deleteSpeed || (1 / 3) * this.speed;
   this.useSymbols = options.useSymbols || false;
   this.waitUntilVisible = options.waitUntilVisible || false;
   this.letters = "∀∃ƂOo⅂AɌFWDɺU∋IßP⅁XꝚ";
@@ -89,12 +99,18 @@ function CipherType(target, options = {}) {
 
   this.target = document.querySelector(target);
   this.target.classList.add("target");
+  CipherType.prototype._clear = () => {
+    _this.target.innerHTML = "";
+    return CipherType.prototype;
+  };
   if (this.cursor) {
     this.target.classList.add("with-cursor");
   }
   if (_this.startDelete) {
-    this.target.innerHTML = "";
+    CipherType.prototype._clear()
+    // _this.cipherQueue.add(CipherType.prototype._clear, [1])
   }
+
   //WRITE CODE FOR TYPING ELEMENT HARD CODED TEXT
 
   this.sleep = async (ms) => {
@@ -159,7 +175,7 @@ function CipherType(target, options = {}) {
 
       // }
 
-      console.log(texts[j]);
+      
       for (let a = 0; a < texts[j].length; a++) {
         let final = texts[j][a];
         let past = _this.output();
@@ -206,21 +222,26 @@ function CipherType(target, options = {}) {
     _this.target.classList.remove("typing");
   };
 
-  this.allAtOnce = async (texts = ["cipherType"], speed, count = 2, useSymbols = false) => {
+  this.allAtOnce = async (
+    texts = ["cipherType"],
+    speed,
+    count = 2,
+    useSymbols = false
+  ) => {
     let resc = useSymbols ? _this.symbols : _this.letters;
 
     let past = _this.target.innerHTML;
     for (let j = 0; j < texts.length; j++) {
-    for (let i = 0; i < 20; i++) {
-      let result = "";
-      for (let a = 0; a < texts[j].length; a++) {
-        result += texts[j][a] === " " ? " " : _this.symbolGenerator(resc);
+      for (let i = 0; i < 20; i++) {
+        let result = "";
+        for (let a = 0; a < texts[j].length; a++) {
+          result += texts[j][a] === " " ? " " : _this.symbolGenerator(resc);
+        }
+        _this.target.innerHTML = past + result;
+        await this.sleep(speed);
       }
-      _this.target.innerHTML = past + result;
-      await this.sleep(speed);
+      _this.target.innerHTML = past + texts[j];
     }
-    _this.target.innerHTML = past + texts[j];
-  }
     await this.sleep(speed * 3);
   };
 
@@ -239,13 +260,12 @@ function CipherType(target, options = {}) {
         //await _this.oneByOne(texts, speed, count, useSymbols);
         break;
     }
-    
+
     return this;
   };
 
   CipherType.prototype._remove = async (len, speed = _this.deleteSpeed) => {
     await _this.sleep(_this.startDelay);
-    console.log(typeof len);
     if (typeof len === "string") {
       len = len === "CLEAR" ? _this.target.innerHTML.length : 0;
     }
@@ -257,16 +277,12 @@ function CipherType(target, options = {}) {
     for (let a = 0; a < len; a++) {
       let res = _this.target.textContent;
       await _this.sleep(_this.deleteSpeed);
-      console.log(a, len);
       _this.target.textContent = res.slice(0, -1);
     }
 
     return this;
   };
-  CipherType.prototype._clear = async (speed = _this.speed) => {
-    _this.target.innerHTML = "";
-    return this;
-  };
+
   CipherType.prototype.type = (
     text,
     speed = this.speed,
@@ -316,6 +332,7 @@ function CipherType(target, options = {}) {
     _this.cipherQueue.start();
     return this;
   };
+    
 
   //ADD OPTIONS METHOD
   return this;
